@@ -6,8 +6,8 @@ from typing import Tuple, List, Dict
 
 import pandas
 from PIL import Image
-from muscima.cropobject import CropObject
-from omrdatasettools.image_generators.MuscimaPlusPlusImageGenerator import MuscimaPlusPlusImageGenerator
+from mung.io import read_nodes_from_file
+from mung.node import Node
 from tqdm import tqdm
 
 from muscima_annotation_generator import create_annotations_in_pascal_voc_format
@@ -31,7 +31,7 @@ def cut_images(muscima_pp_dataset_directory: str, output_path: str,
         image = Image.open(image_path, "r")  # type: Image.Image
         image_width = image.width
         image_height = image.height
-        objects_appearing_in_image: List[CropObject] = None
+        objects_appearing_in_image: List[Node] = None
 
         for document, crop_objects in annotations_dictionary.items():
             if image_name in document:
@@ -111,21 +111,20 @@ def cut_images(muscima_pp_dataset_directory: str, output_path: str,
     annotation_data.to_csv(exported_annotations_file_path, index=False)
 
 
-def load_all_muscima_annotations(muscima_pp_dataset_directory) -> Dict[str, List[CropObject]]:
+def load_all_muscima_annotations(muscima_pp_dataset_directory) -> Dict[str, List[Node]]:
     """
     :param muscima_pp_dataset_directory:
     :return: Returns a dictionary of annotations with the filename as key
     """
-    image_generator = MuscimaPlusPlusImageGenerator()
     raw_data_directory = os.path.join(muscima_pp_dataset_directory, "v1.0", "data", "cropobjects_withstaff")
     all_xml_files = [y for x in os.walk(raw_data_directory) for y in glob(os.path.join(x[0], '*.xml'))]
 
-    crop_object_annotations = {}
+    annotations = {}
     for xml_file in tqdm(all_xml_files, desc='Parsing annotation files'):
-        crop_objects = image_generator.load_crop_objects_from_xml_file(xml_file)
-        doc = crop_objects[0].doc
-        crop_object_annotations[doc] = crop_objects
-    return crop_object_annotations
+        nodes = read_nodes_from_file(xml_file)
+        doc = nodes[0].document
+        annotations[doc] = nodes
+    return annotations
 
 
 def intersection(ai, bi):
@@ -145,7 +144,7 @@ def area(a):
 
 def compute_objects_appearing_in_cropped_image(file_name: str,
                                                image_crop_bounding_box_top_left_bottom_right: Tuple[int, int, int, int],
-                                               all_music_objects_appearing_in_image: List[CropObject],
+                                               all_music_objects_appearing_in_image: List[Node],
                                                intersection_over_area_threshold_for_inclusion=0.8) \
         -> List[Tuple[str, str, Tuple[int, int, int, int]]]:
     x_translation_for_cropped_image = image_crop_bounding_box_top_left_bottom_right[1]
@@ -153,7 +152,7 @@ def compute_objects_appearing_in_cropped_image(file_name: str,
 
     objects_appearing_in_cropped_image: List[Tuple[str, str, Tuple[int, int, int, int]]] = []
     for music_object in all_music_objects_appearing_in_image:
-        if music_object.clsname in ["staff", "staff_line", "staff_space"]:
+        if music_object.class_name in ["staff", "staff_line", "staff_space"]:
             continue
 
         intersection_over_area = intersection(image_crop_bounding_box_top_left_bottom_right,
@@ -168,7 +167,7 @@ def compute_objects_appearing_in_cropped_image(file_name: str,
                 max(0, left - x_translation_for_cropped_image),
                 min(img_height, bottom - y_translation_for_cropped_image),
                 min(img_width, right - x_translation_for_cropped_image))
-            objects_appearing_in_cropped_image.append((file_name, music_object.clsname, translated_bounding_box))
+            objects_appearing_in_cropped_image.append((file_name, music_object.class_name, translated_bounding_box))
 
     return objects_appearing_in_cropped_image
 
