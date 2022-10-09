@@ -15,7 +15,7 @@ from muscima_annotation_generator import create_annotations_in_pascal_voc_format
 
 def cut_images(muscima_pp_dataset_directory: str, output_path: str,
                exported_annotations_file_path: str, annotations_path: str):
-    muscima_image_directory = os.path.join(muscima_pp_dataset_directory, "v1.0", "data", "images", "*.png")
+    muscima_image_directory = os.path.join(muscima_pp_dataset_directory, "v2.0", "data", "images", "*.png")
     os.makedirs(output_path, exist_ok=True)
     if os.path.exists(exported_annotations_file_path):
         os.remove(exported_annotations_file_path)
@@ -42,7 +42,7 @@ def cut_images(muscima_pp_dataset_directory: str, output_path: str,
             # Image has annotated staff-lines, but does not have corresponding crop-object annotations, so skip it
             continue
 
-        staff_objects = [x for x in objects_appearing_in_image if x.clsname == "staff"]
+        staff_objects = [x for x in objects_appearing_in_image if x.class_name == "staff"]
         max_offset_before_first_and_after_last_staff = 120
 
         if staff_objects is None:
@@ -116,15 +116,17 @@ def load_all_muscima_annotations(muscima_pp_dataset_directory) -> Dict[str, List
     :param muscima_pp_dataset_directory:
     :return: Returns a dictionary of annotations with the filename as key
     """
-    raw_data_directory = os.path.join(muscima_pp_dataset_directory, "v1.0", "data", "cropobjects_withstaff")
+    raw_data_directory = os.path.join(muscima_pp_dataset_directory, "v2.0", "data",
+                                      "annotations")
+
     all_xml_files = [y for x in os.walk(raw_data_directory) for y in glob(os.path.join(x[0], '*.xml'))]
 
     annotations = {}
     for xml_file in tqdm(all_xml_files, desc='Parsing annotation files'):
         nodes = read_nodes_from_file(xml_file)
         doc = nodes[0].document
-        annotations[doc] = nodes
-    return annotations
+        crop_object_annotations[doc] = nodes
+    return crop_object_annotations
 
 
 def intersection(ai, bi):
