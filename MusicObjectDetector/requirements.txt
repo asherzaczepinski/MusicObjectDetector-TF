@@ -1,6 +1,6 @@
 # Use conda install ... to install these
 matplotlib
-Pillow>=4.2.1
+Pillow
 graphviz # for graphviz, installation via the system might be required, e.g. sudo apt-get install graphviz
 pytest
 protobuf
@@ -14,9 +14,10 @@ scikit-image
 scipy
 sympy
 muscima >= 0.10.0
-numpy==1.16.2
+numpy
 lxml
 pydot
 tqdm
 opencv-python
 omrdatasettools==1.3.1
+pandas
