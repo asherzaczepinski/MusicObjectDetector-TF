@@ -125,8 +125,8 @@ def load_all_muscima_annotations(muscima_pp_dataset_directory) -> Dict[str, List
     for xml_file in tqdm(all_xml_files, desc='Parsing annotation files'):
         nodes = read_nodes_from_file(xml_file)
         doc = nodes[0].document
-        crop_object_annotations[doc] = nodes
-    return crop_object_annotations
+        annotations[doc] = nodes
+    return annotations
 
 
 def intersection(ai, bi):
