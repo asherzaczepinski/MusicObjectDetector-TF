@@ -118,9 +118,10 @@ def load_all_muscima_annotations(muscima_pp_dataset_directory) -> Dict[str, List
     """
     raw_data_directory = os.path.join(muscima_pp_dataset_directory, "v2.0", "data",
                                       "annotations")
+
     all_xml_files = [y for x in os.walk(raw_data_directory) for y in glob(os.path.join(x[0], '*.xml'))]
 
-    crop_object_annotations = {}
+    annotations = {}
     for xml_file in tqdm(all_xml_files, desc='Parsing annotation files'):
         nodes = read_nodes_from_file(xml_file)
         doc = nodes[0].document
