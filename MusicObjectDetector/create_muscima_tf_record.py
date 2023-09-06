@@ -36,7 +36,7 @@ from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
 from tqdm import tqdm
 
-flags = tf.app.flags
+flags = tf.compat.v1.app.flags
 flags.DEFINE_string('data_dir', '', 'Root directory to raw PASCAL VOC dataset.')
 flags.DEFINE_string('set', 'training', 'Convert training set, validation set or '
                                        'merged set.')
@@ -149,7 +149,7 @@ def main(_):
 
     os.makedirs(os.path.dirname(FLAGS.output_path), exist_ok=True)
 
-    writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
+    writer = tf.io.TFRecordWriter(FLAGS.output_path)
 
     label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
 
@@ -173,4 +173,4 @@ def main(_):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()
