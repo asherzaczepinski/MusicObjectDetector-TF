@@ -3,7 +3,7 @@ matplotlib
 Pillow
 graphviz # for graphviz, installation via the system might be required, e.g. sudo apt-get install graphviz
 pytest
-protobuf
+protobuf==3.20.3
 
 # Use pip install ... to install these
 tensorflow==1.15.4
@@ -21,3 +21,4 @@ tqdm
 opencv-python
 omrdatasettools==1.3.1
 pandas
+tensorflow-object-detection-api
